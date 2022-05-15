@@ -1,0 +1,33 @@
+<suite name="Suite1" verbose="1" parallel="methods"  >
+    <parameter name="parameter-name" value="John"/>
+    <parameter name="parameter-name1" value="Mary"/>
+    <parameter name="parameter-name2" value="Mary2"/>
+
+    <test name="RegressionSuite">
+        <groups>
+            <define name="simpleActions">
+                <include name="sum"/>
+                <include name="subtraction"/>
+            </define>
+            <define name="allActions">
+                <include name="simpleActions"/>
+                <include name="multi"/>
+                <include name="division"/>
+            </define>
+            <run>
+                <include name="allActions"/>
+            </run>
+        </groups>
+        <classes>
+<!--            <class name="MySimpleTest" />-->
+<!--            <class name="AnnotationTests" />-->
+<!--            <class name="PriorityTests" />-->
+<!--            <class name="GroupTests" />-->
+<!--            <class name="ExceptionTests" />-->
+<!--            <class name="ParametersTests" />-->
+<!--            <class name="ChildClass" />-->
+<!--            <class name="ParalelMethodTests" />-->
+            <class name="ABExercise" />
+        </classes>
+    </test>
+</suite>
