@@ -16,6 +16,7 @@ public class APITests {
     String loginToken;
     Integer userID;
     Integer userPostId;
+    Integer commentID;
 
     @BeforeTest
     public void loginUser() throws JsonProcessingException {
@@ -68,7 +69,7 @@ public class APITests {
                 .get("/users/" +userID+"/posts");
      response
                 .then()
-            .body("user.username", equalTo("nikidm-testing-user"))
+            //.body("user.username", equalTo("nikidm-testing-user"))
              // .body("id", equalTo(4622))
                 .log()
                 .all();
@@ -100,18 +101,27 @@ public class APITests {
     public void commentPost(){
         //Created an object of class Action POJO which is needed for making a Like. The object is set to the expected value
         ActionPOJO commentPost=new ActionPOJO();
-        commentPost.setContent("My new comment");
+        commentPost.setContent("My new comment from Maven 2");
 
-        given()
+       Response response= given()
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + loginToken)
                 .body(commentPost)
                 .when()
-                .post("/posts/4622/comment")
+                .post("/posts/4622/comment");
+
+          response
                 .then()
-                .body("content", equalTo("My new comment"))
+                .statusCode(201)
+                .body("content", equalTo("My new comment from Maven 2"))
                 .log()
                 .all();
+
+//        // Convert the response body into a String
+        String commentResponseBody=response.getBody().asString();
+
+        commentID=JsonPath.parse(commentResponseBody).read("$.id");
+        System.out.println("comment id is " + commentID);
 
     }
 
@@ -143,9 +153,11 @@ public class APITests {
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + loginToken)
                 .when()
-                .delete("/posts/4622/comments/1122")
+                .delete("/posts/4622/comments/"+commentID)
                 .then()
-                //.body("id", equalTo("1122"))
+                .statusCode(200)
+                .body("user.id", equalTo(2399))
+                .body("id",equalTo(commentID))
                 .log()
                 .all();
 
