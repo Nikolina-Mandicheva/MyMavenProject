@@ -11,6 +11,9 @@ public class GetUsersPost {
         baseURI="http://training.skillo-bg.com:3100";
 
         given()
+                .queryParam("skip", 0)
+                .queryParam("take", 10)
+                .basePath("public")
                 .when()
                 .get("/posts/public?take=2&skip=0")
         .then()
