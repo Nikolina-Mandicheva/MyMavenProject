@@ -13,14 +13,14 @@ public class ABExercise {
         };
     }
 
-    @Test(dataProvider = "ABData", groups= "sum")
+    @Test(dataProvider = "ABData", groups= {"sum", "exercises"})
     public void sumAB(int a, int b){
         System.out.println("The sum of the both values is: " + (a+b));
     assertTrue((a+b)>=0, "Failed as sum is negative");
    assertEquals((a+b), 25);
     }
 
-    @Test(dataProvider = "ABData", groups= "subtraction")
+    @Test(dataProvider = "ABData", groups= {"exercises","subtraction"})
     public void subtractAB(int a, int b){
         SoftAssert softAssert=new SoftAssert();
         System.out.println("The subtraction of the both values is: " + (a-b));
@@ -37,7 +37,7 @@ public class ABExercise {
 //        assertEquals((a-b),0);
     }
 
-    @Test(dataProvider = "ABData", groups= "multi")
+    @Test(dataProvider = "ABData", groups= {"multi","exercises"})
     public void multiplicationAB(int a, int b){
         System.out.println("The multiplication of the both values is: " + (a*b));
         assertTrue(a>=0, "Passed - a>0");
@@ -45,7 +45,7 @@ public class ABExercise {
         assertEquals((a*b), 150);
     }
 
-    @Test(dataProvider = "ABData", groups= "division")
+    @Test(dataProvider = "ABData", groups= {"division","exercises"})
     public void wholeDivisionAB(int a, int b){
         System.out.println("The whole division of the both values is: " + (a/b));
         assertFalse(a==0, "Failed - a=0, it will be always 0");
@@ -54,7 +54,7 @@ public class ABExercise {
 
     }
 
-    @Test(dataProvider = "ABData", groups= "division")
+    @Test(dataProvider = "ABData", groups= {"division","exercises"})
     public void fractionAB(int a, int b){
         System.out.println("The fractional division of the both values is: " + (a%b));
         assertTrue(a>=0, "Passed - a>0");

@@ -25,7 +25,7 @@ public class ExceptionTests {
 //        throw new FileNotFoundException("Pass Message test FileNotFound as subclass of IOException");
 //    }
 
-    @Test(expectedExceptions = {IllegalArgumentException.class })
+    @Test(expectedExceptions = {IllegalArgumentException.class }, groups= {"exercises"})
     public void exceptionTestFour() throws Exception {
         String myString= new String("123");
         Integer.parseInt(myString);

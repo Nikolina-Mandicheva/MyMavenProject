@@ -1,27 +1,27 @@
 import org.testng.annotations.*;
 
 public class ChildClass extends InheritedAnnotations{
-    @BeforeMethod
+    @BeforeMethod (groups= {"exercises"})
     public void beforeChildMethod() {
         System.out.println("ChildClass's Before Test method");
     }
 
-    @AfterMethod
+    @AfterMethod(groups= {"exercises"})
     public void afterChildMethod() {
         System.out.println("ChildClass's After Test method");
     }
 
-    @BeforeClass
+    @BeforeClass(groups= {"exercises"})
     public void beforeChildClass() {
         System.out.println("ChildClass's Before Class method");
     }
 
-    @AfterClass
+    @AfterClass (groups= {"exercises"})
     public void afterChildClass() {
         System.out.println("ChildClass's After Class method");
     }
 
-    @Test
+    @Test (groups= {"exercises"})
     public void testCase() {
         System.out.println("===== Executing actual test ======");
     }

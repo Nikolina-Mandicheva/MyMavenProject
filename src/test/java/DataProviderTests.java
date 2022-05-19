@@ -13,7 +13,7 @@ public class DataProviderTests {
     }
 
     //This test method declares that its data should be supplied by the Data Provider named "test1"
-    @Test(dataProvider = "test1")
+    @Test(dataProvider = "test1",groups= {"exercises"})
     public void verifyData1(String n1, Integer n2) {
         System.out.println(n1 + " " + n2);
     }

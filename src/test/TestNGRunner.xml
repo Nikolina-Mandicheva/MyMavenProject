@@ -18,6 +18,11 @@
         <!--                <include name="allActions"/>-->
         <!--            </run>-->
         <!--        </groups>-->
+        <groups>
+            <run>
+                <exclude name="exercises"/>
+            </run>
+        </groups>
         <packages>
             <package name="RestAPITesting"/>
         </packages>

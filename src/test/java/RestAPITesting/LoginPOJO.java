@@ -7,6 +7,7 @@ public class LoginPOJO {
     private String usernameOrEmail;
     private String password;
 
+
     public String getUsernameOrEmail() {
         return usernameOrEmail;
     }
