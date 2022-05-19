@@ -103,9 +103,9 @@ public class APITests {
                 .header("Authorization", "Bearer " + loginToken)
                 .body(likePost)
                 .when()
-                .patch("/posts/4622")
+                .patch("/posts/4673")
                 .then()
-                .body("post.id", equalTo(4622))
+                .body("post.id", equalTo(4673))
                 .log()
                 .all();
 
@@ -146,18 +146,31 @@ public class APITests {
 
         //  int commentID;
 
-        Response response = given()
+        ValidatableResponse validatableResponse = given()
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + loginToken)
                 .when()
-                .get("/posts/4622/comments");
-
-        response
+                .get("/posts/4622/comments")
                 .then()
                 .statusCode(200)
+                //.assertThat().body("user.id", equalTo(userID))
                 .log()
                 .all();
         // commentID=JsonPath.parse(response).read("$.id");
+
+        ArrayList<Integer> userCommentsIds= new ArrayList<>();
+        userCommentsIds=validatableResponse.extract().path("id");
+        Assert.assertNotEquals(userCommentsIds,null);
+        for (int element:userCommentsIds){
+            System.out.println("Comment posts ids are: " + element);
+        }
+
+        ArrayList<Integer> userIds= new ArrayList<>();
+        userIds=validatableResponse.extract().path("user.id");
+        Assert.assertEquals(userIds.get(0),userID);
+        for (int element:userIds){
+            System.out.println("user id is: " + element);
+        }
 
 
     }
