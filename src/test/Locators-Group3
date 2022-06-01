@@ -1,0 +1,34 @@
+http://training.skillo-bg.com/posts/all
+
+Logged user: nikidm-testing-user
+
+Logout - verify that the button is in the header nav
+
+//nav[contains(@class,'navbar')]//i[contains(@class,'sign-out')]
+
+Search - “nik” keyword
+Verify that there is implemented search container in the header nav
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]
+
+Verify that there is an implemented search container with input field blank by default?
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]/input[@value=' ']
+
+Verify there is a magnifier
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]/i[contains(@class, 'search')]
+
+Verify there is dropdown container
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]/div[contains(@class, 'dropdown-search')]//div[@class='dropdown-container']
+
+Verify that the dropdown container contains at least one user
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]//div[@class='dropdown-container']/div[contains (@class, 'dropdown-user')]
+It returns list of 14 by the search string
+
+
+Verify that the dropdown listed user have profile image implemented
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]//div[@class='dropdown-container']/div[contains (@class, 'dropdown-user')]//img
+
+Verify that the dropdown listed user have username implemented
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]//div[@class='dropdown-container']/div[contains (@class, 'dropdown-user')]//a[@class='post-user']
+
+Verify that there is dropdown container with follow button
+//nav[contains(@class,'navbar')]//form[contains(@class,'search-container')]//div[@class='dropdown-container']//button[text()= 'Follow']

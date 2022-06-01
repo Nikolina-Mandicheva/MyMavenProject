@@ -21,7 +21,7 @@ public class APITests {
     String loginToken;
     Integer userID;
     ArrayList<Integer> userPostIds = new ArrayList<>();
-    static String commentID1;
+    static Integer commentID1;
 
 
     // @Test TODO REGISTER AND CHAIN TO LOGIN CREDENTIALS;MAKE IT ONCE BEFORE THE CLASS
@@ -137,7 +137,7 @@ public class APITests {
 
         Integer commentID = JsonPath.parse(commentResponseBody).read("$.id");
         System.out.println("comment id is " + commentID);
-        commentID1 = Integer.toString(commentID);
+        commentID1 = commentID;
         System.out.println("Class var " + commentID1);
 
     }
@@ -196,7 +196,7 @@ public class APITests {
                 .then()
                 .statusCode(200)
                 .body("user.id", equalTo(2399))
-                .body("id", equalTo(commentID1))
+                .assertThat().body("id", equalTo(commentID1))
                 .log()
                 .all();
 
