@@ -4,7 +4,9 @@
     <test name="RegressionSuite1">
 
         <classes>
-                        <class name="TestingWebDriver.FirstTest" />
+            <class name="TestingWebDriver.FirstTest" />
+            <class name="TestingWebDriver.TestsHerokuapp" />
+
 
         </classes>
     </test>
