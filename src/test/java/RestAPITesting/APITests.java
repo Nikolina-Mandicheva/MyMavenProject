@@ -7,12 +7,15 @@ import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -26,10 +29,40 @@ public class APITests {
 
     // @Test TODO REGISTER AND CHAIN TO LOGIN CREDENTIALS;MAKE IT ONCE BEFORE THE CLASS
 
-    @Test
+    @BeforeClass
     public void register(){
+       //TODO REGISTER AND CHAIN TO LOGIN CREDENTIALS;MAKE IT ONCE BEFORE THE CLASS
+     
+            RegisterPOJO register=new RegisterPOJO();
 
-    }
+            //logic for unique username and pass
+            Date date=new Date();
+            SimpleDateFormat dateFormat=new SimpleDateFormat();
+            dateFormat.getDateFormatSymbols();
+            // String a=date.toString();
+            System.out.println(dateFormat);
+            System.out.println(date.getTime());
+
+            register.setUsername("Nikolina"+date.getTime());
+            register.setPassword("nikidm-testing-user");
+            register.setBirthDate("12.12.1985");
+            register.setEmail("n"+date.getTime()+"@a.b");
+            register.setPublicInfo("hi");
+
+            ValidatableResponse validatableResponse= given()
+                    .header("Content-Type", "application/json")
+                    .body(register)
+                    .when()
+                    .post("/users")
+                    .then()
+                    .log()
+                    .all()
+                    .statusCode(201);
+
+
+        }
+
+
 
     @BeforeTest
     public void loginUser() throws JsonProcessingException {
