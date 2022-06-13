@@ -26,6 +26,11 @@ public class APITests {
 
     // @Test TODO REGISTER AND CHAIN TO LOGIN CREDENTIALS;MAKE IT ONCE BEFORE THE CLASS
 
+    @Test
+    public void register(){
+
+    }
+
     @BeforeTest
     public void loginUser() throws JsonProcessingException {
         //create new login POJO Class object named login

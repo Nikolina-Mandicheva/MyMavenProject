@@ -1,0 +1,13 @@
+<suite name="Suite1" verbose="1" parallel="classes">
+
+
+    <test name="RegressionSuite1">
+
+        <classes>
+            <class name="TestingWebDriver.FirstTest" />
+            <class name="TestingWebDriver.TestsHerokuapp" />
+
+
+        </classes>
+    </test>
+</suite>
