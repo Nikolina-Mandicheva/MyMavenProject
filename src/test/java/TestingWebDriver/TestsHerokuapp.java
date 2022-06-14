@@ -1,95 +1,436 @@
 package TestingWebDriver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.Function;
 
 public class TestsHerokuapp {
     ChromeDriver driver;
     WebDriverWait wait;
+    JavascriptExecutor js;
+    Actions actions;
 
     @BeforeMethod
-    public void setUp(){
+    public void setUp() {
         WebDriverManager.chromedriver().setup();
 
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-
-       driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+//Implicit - waits designated time before throwing an error
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 
         //Explicit wait - waiting for a designated action to happen before to throw an error "element not found"
-        //wait=new WebDriverWait(driver, Duration.ofSeconds(20));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        actions = new Actions(driver);
+
+        js = (JavascriptExecutor) driver;
     }
 
     @Test
-    public void ABTesting(){
-        WebElement text= driver.findElement(By.xpath("//div/p"));
+    public void ABTesting() {
+        WebElement text = driver.findElement(By.xpath("//div/p"));
         Assert.assertTrue(text.isDisplayed());
     }
 
     @Test
     public void AddRemoveElements() throws InterruptedException {
         driver.get("https://the-internet.herokuapp.com/add_remove_elements/");
-        WebElement AddElementButton= driver.findElement(By.xpath("//button[@onclick]"));
-       List<WebElement> elementsContainerChildren=driver.findElements(By.xpath("//div[@id='elements']/descendant::*"));
-       //descendants=children which is  and each element of the descendants
+        WebElement AddElementButton = driver.findElement(By.xpath("//button[@onclick]"));
+        List<WebElement> elementsContainerChildren = driver.findElements(By.xpath("//div[@id='elements']/descendant::*"));
+        //descendants=children which is  and each element of the descendants
         Assert.assertTrue(elementsContainerChildren.isEmpty());
 
-        for (int i = 0; i <2 ; i++) {
+        for (int i = 0; i < 2; i++) {
             AddElementButton.click();
-            elementsContainerChildren.add(driver.findElement(By.xpath("//div[@id='elements']/descendant::*")));
+
+        }
+        elementsContainerChildren = driver.findElements(By.xpath("//div[@id='elements']/button[@onclick='deleteElement()']"));
+
+        Assert.assertEquals(elementsContainerChildren.size(), 2);
+
+
+//How To make List elements to click? so to remove them and then to validate that list is empty again? Below:
+        List<WebElement> deleteButtonsList = driver.findElements(By.xpath("//div[@id='elements']/button[@onclick='deleteElement()']"));
+        for (WebElement element : deleteButtonsList
+        ) {
+            element.click();
 
         }
 
-        Assert.assertEquals(elementsContainerChildren.size(),2);
-
-
-//How To make List elements to click? so to remove them and then to validate that list is empty again?
-        for (int i = 2; i <0 ; i--) {
-            elementsContainerChildren.get(i).click();
-        }
-        Thread.sleep(5000);
-        Assert.assertTrue(elementsContainerChildren.isEmpty());
+        deleteButtonsList = driver.findElements(By.xpath("//div[@id='elements']/button[@onclick='deleteElement()']"));
+        Assert.assertEquals(deleteButtonsList.size(), 0);
 
 
     }
 
     @Test
-    public void basicAuth(){
+    public void basicAuth() {
         driver.get("https://admin:admin@the-internet.herokuapp.com/basic_auth");
-        WebElement text=driver.findElement(By.xpath("//div[@class='example']/p[text()]"));
-        Assert.assertEquals(text.getText(),"Congratulations! You must have the proper credentials.");
+        WebElement text = driver.findElement(By.xpath("//div[@class='example']/p[text()]"));
+        Assert.assertEquals(text.getText(), "Congratulations! You must have the proper credentials.");
     }
 
     @Test //think that does not work as expected
     public void dragAndDrop() throws InterruptedException {
         driver.get("https://the-internet.herokuapp.com/drag_and_drop");
-        WebElement elementA=driver.findElement(By.id("column-a"));
-        WebElement elementB=driver.findElement(By.id("column-b"));
+        WebElement elementA = driver.findElement(By.id("column-a"));
+        WebElement elementB = driver.findElement(By.id("column-b"));
 
-        Actions action=new Actions(driver);
+        Actions actions = new Actions(driver);
 
-       action.moveToElement(elementA).clickAndHold(elementA).moveToElement(elementB).release(elementB).build().perform();
-       // action.dragAndDrop(elementA,elementB).perform();
-        Thread.sleep(2000);
+        actions.moveToElement(elementA).clickAndHold(elementA).moveToElement(elementB).release(elementB).build().perform();
+        // action.dragAndDrop(elementA,elementB).perform();
 
-        WebElement switchedAtoB= driver.findElement(By.xpath("//div[@id='columns']/div[2]/header[text()='A']"));
 
-       //Assert.assertEquals();
+        WebElement switchedAtoB = driver.findElement(By.xpath("//div[@id='columns']/div[2]/header[text()='A']"));
+
+        //Assert.assertEquals();
 
     }
+
+    @Test
+    //how to verify that the Answer actually changes on clicking on element
+    //In the provided completed task, it calculates cells in the table?
+    public void challengingDOM() throws InterruptedException {
+        driver.get("https://the-internet.herokuapp.com/challenging_dom");
+        //Verify there is table with columns
+        List<WebElement> tableColumnFields = driver.findElements(By.xpath("//div[@class='large-10 columns']/table//tr/th"));
+        Assert.assertNotNull(tableColumnFields.size());
+        Assert.assertFalse(tableColumnFields.isEmpty());
+        Assert.assertTrue(driver.findElement(By.xpath("//div[@class='large-10 columns']/canvas")).isDisplayed());
+
+        //Verify there is at least one table row
+        List<WebElement> tableRows = driver.findElements(By.xpath("//div[@class='large-10 columns']//tbody/tr"));
+        int i = tableRows.size();
+        Assert.assertTrue(tableRows.get(0).isDisplayed());
+        Assert.assertTrue(tableRows.get(i - 1).isDisplayed());
+
+        WebElement rowEditButton = driver.findElement(By.xpath("//div[@class='large-10 columns']//tbody/tr/td/a[text()='edit']"));
+        WebElement rowDeleteButton = driver.findElement(By.xpath("//div[@class='large-10 columns']//tbody/tr/td/a[text()='delete']"));
+        Assert.assertTrue(rowEditButton.isDisplayed());
+        Assert.assertTrue(rowDeleteButton.isDisplayed());
+
+        // How to verify that on click on button, the Answer is changed? JS?
+        WebElement buttonBlue = driver.findElement(By.xpath("//div[@class='large-2 columns']/a[@class='button']"));
+        WebElement buttonRed = driver.findElement(By.xpath("//div[@class='large-2 columns']/a[@class='button alert']"));
+        WebElement buttonGreen = driver.findElement(By.xpath("//div[@class='large-2 columns']/a[@class='button success']"));
+
+
+    }
+
+    @Test
+    public void checkBoxes() throws InterruptedException {
+        driver.get("https://the-internet.herokuapp.com/checkboxes");
+
+        // The case generally works along with the Assertions, but in debug even the box is clicked get its state as false?
+
+        WebElement checkbox1 = driver.findElement(By.xpath("//form[@id='checkboxes']/input[1]"));
+        WebElement checkbox2 = driver.findElement(By.xpath("//form[@id='checkboxes']/input[2]"));
+
+        boolean checkboxState1 = checkbox1.isSelected();
+        boolean checkboxState2 = checkbox1.isSelected();
+
+
+        checkbox1.click();
+        boolean checkboxStateAfterClick1 = checkbox1.isSelected();
+        Assert.assertNotEquals(checkboxState1, checkboxStateAfterClick1);
+
+        checkbox2.click();
+        boolean checkboxStateAfterClick2 = checkbox1.isSelected();
+        Assert.assertNotEquals(checkboxState2, checkboxStateAfterClick2);
+
+        // Thread.sleep(5000);
+
+    }
+
+    @Test
+    public void contextMenu() throws InterruptedException {
+        driver.get("https://the-internet.herokuapp.com/context_menu");
+
+
+        WebElement contextBox = driver.findElement(By.id("hot-spot"));
+        actions.contextClick(contextBox).perform();
+        Alert alert = driver.switchTo().alert();
+        // Thread.sleep(5000);
+
+        String alertText = alert.getText();
+        Assert.assertEquals(alert.getText(), "You selected a context menu");
+        alert.dismiss();
+
+    }
+
+    @Test
+    //Handle the case when the page does not reload
+    public void disappearingElements() throws InterruptedException {
+        driver.get("https://the-internet.herokuapp.com/disappearing_elements");
+
+        List<WebElement> buttonList=driver.findElements(By.xpath("//ul/li"));
+        int size= buttonList.size();
+        System.out.println("Buttons are: "+ size);
+
+        driver.navigate().refresh();
+
+       buttonList=driver.findElements(By.xpath("//ul/li"));
+        int size1= buttonList.size();
+        System.out.println("New buttons number is: " +size1);
+
+        try {
+            if (size1 > size) {
+
+                Assert.assertTrue(driver.findElement(By.xpath("//ul/li/a[text()='Gallery']")).isDisplayed());
+            } else {
+                Assert.assertNotEquals((buttonList.get(size1 - 1).getText()), "Gallery");
+            }
+        }
+        catch (Exception e ){
+
+            System.out.println("the reloaded page did not change the button appearance");
+        }
+
+       // Thread.sleep(5000);
+    }
+
+    @Test
+    //RE-DO WITH SELECT
+    public void dropdown() throws InterruptedException {
+        driver.get("https://the-internet.herokuapp.com/dropdown");
+
+        WebElement dropdown=driver.findElement(By.id("dropdown"));
+        dropdown.click();
+
+        WebElement dropdownList= driver.findElement(By.xpath("//select[@id='dropdown']/option[position()>1]"));
+        Assert.assertTrue(dropdownList.isDisplayed());
+
+        dropdownList.click();
+
+        WebElement dropdownOptionSelected= driver.findElement(By.xpath("//select[@id='dropdown']/option[@selected='selected']"));
+        Assert.assertTrue(dropdownOptionSelected.isSelected());
+        Assert.assertTrue(dropdownOptionSelected.isDisplayed());
+
+       // Thread.sleep(5000);
+
+    }
+
+    @Test
+    //To verify that images and text on all items are different each time as matching their img name and content?
+    public void dynamicContent(){
+        driver.get("https://the-internet.herokuapp.com/dynamic_content");
+
+        WebElement firstRowImage=driver.findElement(By.xpath("//div[@class='large-2 columns']/img[contains(@src,'Avatar-6')]"));
+
+    }
+
+    @Test
+    public void dynamicControls() {
+        driver.get("https://the-internet.herokuapp.com/dynamic_controls");
+// assert that the dynamic checkbox is present after loading the page
+        WebElement checkbox = driver.findElement(By.xpath("//div[@id='checkbox']"));
+        Assert.assertTrue(checkbox.isDisplayed());
+
+        //click the remove button and wait until the loading animation is gone
+        WebElement removeButton = driver.findElement(By.xpath("//form[@id='checkbox-example']/button[text()='Remove']"));
+        removeButton.click();
+
+        WebElement loadingAnimation = driver.findElement(By.xpath("//div[@id='loading']"));
+        wait.until(ExpectedConditions.invisibilityOf(loadingAnimation)); //чака анимацията да изчезне
+
+        //Example - fluent wait example
+        Wait<WebDriver> waitFluent= new FluentWait<WebDriver>(driver)
+                .withTimeout(Duration.ofSeconds(30))
+                .pollingEvery(Duration.ofSeconds(1))
+                .ignoring(NoSuchElementException.class);
+        WebElement loadingBar=wait.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver webDriver) {
+                return driver.findElement(By.xpath("//div[@id='loading']"));
+            }
+        });
+
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='checkbox']")));
+        //Assert.assertFalse(checkbox.isDisplayed()); //verifying that the checkbox is not displayed
+        Assert.assertEquals(driver.findElement(By.id("message")).getText(), "It's gone!");
+
+
+
+    }
+
+    @Test
+    public void dynamicLoading() {
+        driver.get("https://the-internet.herokuapp.com/dynamic_loading/2");
+        By startButton = By.xpath("//div[@id='start']/button");
+        By helloWorldText = By.xpath("//div[@id='finish']");
+
+        WebElement startButtonWebElement = driver.findElement(startButton);
+        startButtonWebElement.click();
+        WebElement loadingAnimation= driver.findElement(By.xpath("//div[@id='loading']"));
+        wait.until(ExpectedConditions.invisibilityOf(loadingAnimation));
+        WebElement helloWorldTextWebElement = driver.findElement(helloWorldText);
+        Assert.assertTrue(helloWorldTextWebElement.isDisplayed());
+
+    }
+
+    @Test
+    public void floatingMenu() {
+        driver.get("https://the-internet.herokuapp.com/floating_menu");
+        //Create JS Executor - we will need it for scrolling
+        //Assert the buttons are there
+        WebElement homeButton = driver.findElement(By.xpath("//div[@id='menu']//a[text()='Home']"));
+        Assert.assertTrue(homeButton.isDisplayed());
+        WebElement newsButton= driver.findElement(By.xpath("//div[@id='menu']//a[text()='News']"));
+        Assert.assertTrue(newsButton.isDisplayed());
+
+        // SCROLL THE PAGE - scroll down
+        js.executeScript("window.scrollBy(0,2000)");
+
+        //Assert the buttons are Still there  after the scroll
+        Assert.assertTrue(homeButton.isDisplayed());
+        Assert.assertTrue(newsButton.isDisplayed());
+
+        // SCROLL THE PAGE - scroll up
+        js.executeScript("window.scrollBy(0,-1000)");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='menu']//a[text()='Home']")));
+        //Assert the buttons are Still there  after the scroll Up
+        Assert.assertTrue(homeButton.isDisplayed());
+        Assert.assertTrue(newsButton.isDisplayed());
+
+        //click home button as using js
+        js.executeScript("arguments[0].click()", homeButton);
+    }
+
+
+    @Test
+    public void hovers() throws InterruptedException {
+        driver.get("https://the-internet.herokuapp.com/hovers");
+        WebElement defaultAvatar1= driver.findElement(By.xpath("//div[@class='figure']/img"));
+        Assert.assertTrue(defaultAvatar1.isDisplayed());
+
+        WebElement avatar1Details= driver.findElement(By.xpath("//div[@class='figure']//div/h5"));
+        Assert.assertFalse(avatar1Details.isDisplayed());
+
+
+        actions.moveToElement(defaultAvatar1).perform();
+        Assert.assertTrue(defaultAvatar1.isDisplayed());
+        Assert.assertFalse(avatar1Details.isDisplayed());
+        Assert.assertEquals(avatar1Details.getText(), "name: user1");
+        Assert.assertTrue(driver.findElement(By.xpath("//div[@class='figure']//a[text()='View profile']")).isDisplayed());
+
+        WebElement defaultAvatar2= driver.findElement(By.xpath("//div[@class='figure'][2]/img"));
+        Assert.assertTrue(defaultAvatar2.isDisplayed());
+
+        WebElement avatar2Details= driver.findElement(By.xpath("//div[@class='figure'][2]//div/h5"));
+        Assert.assertFalse(avatar2Details.isDisplayed());
+
+
+        actions.moveToElement(defaultAvatar2).perform();
+        Assert.assertEquals(avatar2Details.getText(), "name: user2");
+        Assert.assertTrue(driver.findElement(By.xpath("//div[@class='figure'][2]//a[text()='View profile']")).isDisplayed());
+
+        WebElement defaultAvatar3= driver.findElement(By.xpath("//div[@class='figure'][3]/img"));
+        Assert.assertTrue(defaultAvatar3.isDisplayed());
+
+        WebElement avatar3Details= driver.findElement(By.xpath("//div[@class='figure'][3]//div/h5"));
+        Assert.assertFalse(avatar3Details.isDisplayed());
+
+
+        actions.moveToElement(defaultAvatar3).perform();
+        Assert.assertEquals(avatar3Details.getText(), "name: user3");
+        Thread.sleep(5000);
+    }
+
+    @Test //Fails, but opens the new window
+    public void multipleWindows(){
+        driver.get("https://the-internet.herokuapp.com/windows");
+        //use getWindowHandle in order to support multiple windows. In first string goes the main window
+        String mainWindow= driver.getWindowHandle();
+        WebElement clickHereButton= driver.findElement(By.xpath("//a[@href='/windows/new']"));
+        Assert.assertTrue(clickHereButton.isDisplayed());
+        clickHereButton.click();
+
+        //now initiate the second window with the handle/ new string
+        List<String> childWindow=  (List<String>) driver.getWindowHandles();
+        driver.switchTo().window(childWindow.get(0));
+
+        WebElement newWindow= driver.findElement(By.xpath("//h3[text()='New Window']"));
+        Assert.assertTrue(newWindow.isDisplayed());
+
+        //navigate back to the main windows
+//        driver.switchTo().window(mainWindow);
+//        Assert.assertTrue(clickHereButton.isDisplayed());
+
+    }
+
+
+    @Test
+    //TO DO
+    public void switchWindows() {
+
+    }
+
+    @Test
+    public void redirectLink(){
+        driver.get("https://the-internet.herokuapp.com/redirect");
+        //Here it reloads a new url in the same window/ To check the status code page?
+        //How to validate the url without using the endpoint
+    }
+
+
+    @Test
+    public void iFrames() {
+        driver.get("https://the-internet.herokuapp.com/iframe");
+        //step into the frame in which the web element is located
+        //TO DO
+        driver.switchTo().frame("mce_0_ifr");
+        //now we are in the i-frame where can correctly take the needed web element
+        WebElement textelement = driver.findElement(By.xpath("//body[@id='tinymce']//p"));
+        textelement.clear();
+        textelement.sendKeys("TEST");
+
+        //get back to the main doc, getting out of the i-frame
+        driver.switchTo().defaultContent();
+        //now as in main doc we can validate web-elements outside of the frame
+        WebElement headerText = driver.findElement(By.xpath("//div[@class='example]/h3'"));
+    }
+
+    @Test
+    public void nested_iFrames() {
+        driver.get("https://the-internet.herokuapp.com/nested_frames");
+        //step into the frame in which the web element is located
+        //TO DO
+        driver.switchTo().frame("frame-top").switchTo().frame("frame-left");
+        //now we are in the i-frame where can correctly take the needed web element
+        WebElement leftFrameBodyText = driver.findElement(By.xpath("//body"));
+        Assert.assertEquals(leftFrameBodyText.getText(), "LEFT");
+//switching to parent frame in order to get all children accessible
+        //driver.switchTo().parentFrame();
+
+        //get back to the main frame which in nested frame is the top frame, in our case should go back to frame-top
+        driver.switchTo().defaultContent();
+        //as getting back to default content should acces to the sub-frame by flow from top one
+        driver.switchTo().frame("frame-top").switchTo().frame("frame-middle");
+        WebElement middleFrameBodyText = driver.findElement(By.xpath("//body"));
+        Assert.assertEquals(middleFrameBodyText.getText(), "MIDDLE");
+    }
+
+
     @AfterMethod
-    public void tearDown(){
-        driver.quit();
+    public void tearDown() {
+
+        driver.close();
     }
 
 }
