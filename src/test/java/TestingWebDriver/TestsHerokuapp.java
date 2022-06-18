@@ -5,12 +5,10 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.Wait;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.*;
 import org.testng.Assert;
 import org.testng.annotations.*;
+import org.testng.asserts.SoftAssert;
 
 import java.time.Duration;
 import java.util.List;
@@ -104,8 +102,7 @@ public class TestsHerokuapp {
     }
 
     @Test
-    //how to verify that the Answer actually changes on clicking on element
-    //In the provided completed task, it calculates cells in the table?
+      //canvas - image recognition - Sikuly library
     public void challengingDOM() throws InterruptedException {
         driver.get("https://the-internet.herokuapp.com/challenging_dom");
         //Verify there is table with columns
@@ -134,7 +131,7 @@ public class TestsHerokuapp {
     }
 
     @Test
-    public void checkBoxes() throws InterruptedException {
+    public void checkBoxes() {
         driver.get("https://the-internet.herokuapp.com/checkboxes");
 
         // The case generally works along with the Assertions, but in debug even the box is clicked get its state as false?
@@ -143,7 +140,7 @@ public class TestsHerokuapp {
         WebElement checkbox2 = driver.findElement(By.xpath("//form[@id='checkboxes']/input[2]"));
 
         boolean checkboxState1 = checkbox1.isSelected();
-        boolean checkboxState2 = checkbox1.isSelected();
+        boolean checkboxState2 = checkbox2.isSelected();
 
 
         checkbox1.click();
@@ -154,22 +151,22 @@ public class TestsHerokuapp {
         boolean checkboxStateAfterClick2 = checkbox1.isSelected();
         Assert.assertNotEquals(checkboxState2, checkboxStateAfterClick2);
 
-        // Thread.sleep(5000);
+
 
     }
 
     @Test
-    public void contextMenu() throws InterruptedException {
+    public void contextMenu()  {
         driver.get("https://the-internet.herokuapp.com/context_menu");
 
 
         WebElement contextBox = driver.findElement(By.id("hot-spot"));
         actions.contextClick(contextBox).perform();
         Alert alert = driver.switchTo().alert();
-        // Thread.sleep(5000);
+
 
         String alertText = alert.getText();
-        Assert.assertEquals(alert.getText(), "You selected a context menu");
+        Assert.assertEquals(alertText, "You selected a context menu");
         alert.dismiss();
 
     }
@@ -202,42 +199,111 @@ public class TestsHerokuapp {
             System.out.println("the reloaded page did not change the button appearance");
         }
 
-       // Thread.sleep(5000);
+
     }
 
     @Test
-    //RE-DO WITH SELECT
-    public void dropdown() throws InterruptedException {
+
+    public void dropdown()  {
         driver.get("https://the-internet.herokuapp.com/dropdown");
 
         WebElement dropdown=driver.findElement(By.id("dropdown"));
-        dropdown.click();
+        Select select = new Select(dropdown);
+        WebElement defaultDropdownOption=select.getFirstSelectedOption();
+        String defaultDropdownOptionText=select.getFirstSelectedOption().getText();
+        Assert.assertTrue(defaultDropdownOption.isDisplayed());
+        Assert.assertEquals(defaultDropdownOptionText, "Please select an option");
 
-        WebElement dropdownList= driver.findElement(By.xpath("//select[@id='dropdown']/option[position()>1]"));
-        Assert.assertTrue(dropdownList.isDisplayed());
 
-        dropdownList.click();
+        select.selectByIndex(1);
+                Assert.assertFalse(defaultDropdownOption.isSelected());
+        String option1DropdownSelection=select.getFirstSelectedOption().getText();
+        Assert.assertEquals(option1DropdownSelection, "Option 1");
 
-        WebElement dropdownOptionSelected= driver.findElement(By.xpath("//select[@id='dropdown']/option[@selected='selected']"));
-        Assert.assertTrue(dropdownOptionSelected.isSelected());
-        Assert.assertTrue(dropdownOptionSelected.isDisplayed());
+        select.selectByValue("2");
+        String option2DropdownSelection=select.getFirstSelectedOption().getText();
+        Assert.assertEquals(option2DropdownSelection, "Option 2");
 
-       // Thread.sleep(5000);
 
-    }
 
-    @Test
-    //To verify that images and text on all items are different each time as matching their img name and content?
-    public void dynamicContent(){
+
+
+//        Without using Select
+//        ropdown.click();
+//
+//        WebElement dropdownList= driver.findElement(By.xpath("//select[@id='dropdown']/option[position()>1]"));
+//        Assert.assertTrue(dropdownList.isDisplayed());
+//
+//        dropdownList.click();
+//
+//        WebElement dropdownOptionSelected= driver.findElement(By.xpath("//select[@id='dropdown']/option[@selected='selected']"));
+//        Assert.assertTrue(dropdownOptionSelected.isSelected());
+//        Assert.assertTrue(dropdownOptionSelected.isDisplayed());
+
+           }
+
+    @Test // USE Click here! and get the text which to compare after reload
+
+    public void dynamicContent() throws InterruptedException {
+        //After click here is selected/clicked once, I cannot click it again?
+
         driver.get("https://the-internet.herokuapp.com/dynamic_content");
+        WebElement clickHereLink= driver.findElement(By.xpath("//a[@href='/dynamic_content?with_content=static']"));
+        clickHereLink.click();
+        Thread.sleep(5000);
 
-        WebElement firstRowImage=driver.findElement(By.xpath("//div[@class='large-2 columns']/img[contains(@src,'Avatar-6')]"));
+        WebElement firstRowImage=driver.findElement(By.xpath("//div[@class='large-2 columns']/img[contains(@src,'Avatar-3')]"));
+        WebElement firstRowText=driver.findElement(By.xpath("//div[contains(text(),' Accusantium')]"));
+
+        WebElement secondRowImage=driver.findElement(By.xpath("//div[@class='large-2 columns']/img[contains(@src,'Avatar-6')]"));
+        WebElement secondRowText=driver.findElement(By.xpath("//div[contains(text(),' Omnis')]"));
+
+        WebElement thirdRowImage=driver.findElement(By.cssSelector("#content > div > div > div > div:nth-of-type(3) > div:nth-of-type(1)>img"));
+        WebElement thirdRowText=driver.findElement(By.cssSelector("#content > div > div > div > div:nth-of-type(3) > div:nth-of-type(2)"));
+
+        SoftAssert softAssertSuite=new SoftAssert();
+        softAssertSuite.assertTrue(firstRowImage.isDisplayed());
+        softAssertSuite.assertTrue(firstRowText.isDisplayed());
+        softAssertSuite.assertTrue(secondRowImage.isDisplayed());
+        softAssertSuite.assertTrue(secondRowText.isDisplayed());
+        softAssertSuite.assertTrue(thirdRowImage.isDisplayed());
+        softAssertSuite.assertTrue(thirdRowText.isDisplayed());
+        softAssertSuite.assertAll();
+
+        String firstElementContent=firstRowText.getText();
+        String secondElementContent=secondRowText.getText();
+        String thirdElementContent=thirdRowText.getText();
+
+//        wait.until(ExpectedConditions.visibilityOf(thirdRowText));
+//        Assert.assertTrue(clickHereLink.isDisplayed());
+//        clickHereLink.click();
+
+        driver.navigate().refresh();
+        WebElement firstRowImageReloaded=driver.findElement(By.xpath("//div[@class='large-2 columns']/img[contains(@src,'Avatar-3')]"));
+        WebElement firstRowTextReloaded=driver.findElement(By.xpath("//div[contains(text(),' Accusantium')]"));
+
+        WebElement secondRowImageReloaded=driver.findElement(By.xpath("//div[@class='large-2 columns']/img[contains(@src,'Avatar-6')]"));
+        WebElement secondRowTextReloaded=driver.findElement(By.xpath("//div[contains(text(),' Omnis')]"));
+
+        WebElement thirdRowImageReloaded=driver.findElement(By.cssSelector("#content > div > div > div > div:nth-of-type(3) > div:nth-of-type(1)>img"));
+        WebElement thirdRowTextReloaded=driver.findElement(By.cssSelector("#content > div > div > div > div:nth-of-type(3) > div:nth-of-type(2)"));
+
+        String firstElementContentReloaded=firstRowTextReloaded.getText();
+        String secondElementContentReloaded=secondRowTextReloaded.getText();
+        String thirdElementContentReloaded=thirdRowTextReloaded.getText();
+
+        Assert.assertEquals(firstElementContent,firstElementContentReloaded);
+        Assert.assertEquals(secondElementContent,secondElementContentReloaded);
+        Assert.assertNotEquals(thirdElementContent,thirdElementContentReloaded);
+
+
 
     }
 
     @Test
     public void dynamicControls() {
         driver.get("https://the-internet.herokuapp.com/dynamic_controls");
+
 // assert that the dynamic checkbox is present after loading the page
         WebElement checkbox = driver.findElement(By.xpath("//div[@id='checkbox']"));
         Assert.assertTrue(checkbox.isDisplayed());
@@ -352,27 +418,27 @@ public class TestsHerokuapp {
         Thread.sleep(5000);
     }
 
-    @Test //Fails, but opens the new window
+    @Test
     public void multipleWindows(){
         driver.get("https://the-internet.herokuapp.com/windows");
-        //use getWindowHandle in order to support multiple windows. In first string goes the main window
-        String mainWindow= driver.getWindowHandle();
+        //use getWindowHandle in for-each so it will switch between the windows
         WebElement clickHereButton= driver.findElement(By.xpath("//a[@href='/windows/new']"));
         Assert.assertTrue(clickHereButton.isDisplayed());
         clickHereButton.click();
 
-        //now initiate the second window with the handle/ new string
-        List<String> childWindow=  (List<String>) driver.getWindowHandles();
-        driver.switchTo().window(childWindow.get(0));
+        for (String winHandle: driver.getWindowHandles()
+             ) {
+            driver.switchTo().window(winHandle);
+            driver.getTitle();
+            if(driver.getTitle()=="New Window"){
+                   Assert.assertTrue(driver.findElement(By.xpath("//h3[text()='New Window']")).isDisplayed());
+                break;
+            }
 
-        WebElement newWindow= driver.findElement(By.xpath("//h3[text()='New Window']"));
-        Assert.assertTrue(newWindow.isDisplayed());
 
-        //navigate back to the main windows
-//        driver.switchTo().window(mainWindow);
-//        Assert.assertTrue(clickHereButton.isDisplayed());
+        }
 
-    }
+   }
 
 
     @Test
@@ -383,9 +449,11 @@ public class TestsHerokuapp {
 
     @Test
     public void redirectLink(){
-        driver.get("https://the-internet.herokuapp.com/redirect");
-        //Here it reloads a new url in the same window/ To check the status code page?
-        //How to validate the url without using the endpoint
+        driver.get("https://the-internet.herokuapp.com/redirector");
+        WebElement clickHereButton= driver.findElement(By.id("redirect"));
+        clickHereButton.click();
+        Assert.assertEquals(driver.getCurrentUrl(),"https://the-internet.herokuapp.com/status_codes");
+
     }
 
 
@@ -430,7 +498,7 @@ public class TestsHerokuapp {
     @AfterMethod
     public void tearDown() {
 
-        driver.close();
+        driver.quit();
     }
 
 }
